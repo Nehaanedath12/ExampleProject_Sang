@@ -1,5 +1,6 @@
 package com.example.exampleproject;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -7,6 +8,7 @@ import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Environment;
+import android.telephony.TelephonyManager;
 import android.util.Base64;
 import android.util.Log;
 import android.util.TypedValue;
@@ -42,6 +44,7 @@ public class Tools {
             Log.d("TAGTAG", "Error accessing file: " + e.getMessage());
         }
     }
+
 
 
     private static File getOutputMediaFile(SignMainActivity signMainActivity){

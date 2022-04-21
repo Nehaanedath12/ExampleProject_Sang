@@ -3,6 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.exampleproject">
 
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <uses-feature android:name="android.hardware.camera" />
+    <uses-feature android:name="android.hardware.camera.autofocus" />
+    <uses-permission android:name="android.permission.READ_SMS"/>
+
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
@@ -11,10 +17,15 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
+    <uses-permission
+        android:name="android.permission.READ_PRIVILEGED_PHONE_STATE"
+        tools:ignore="ProtectedPermissions" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -23,8 +34,27 @@
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.ExampleProject">
-        <activity android:name=".BluetoothPrinter.PrintBluetoothActivity"></activity>
+        android:theme="@style/Theme.ExampleProject"
+        android:usesCleartextTraffic="true">
+        <activity android:name=".otp.OTPActivity"></activity>
+        <activity android:name=".BroadCast.BroadCastActivity" />
+        <activity android:name=".Watsp.BackGroundActivity" />
+
+        <receiver
+            android:name=".Alarm.Restarter"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="restartservice" />
+            </intent-filter>
+        </receiver>
+
+        <activity android:name=".Alarm.AlarmActivity" />
+        <activity android:name=".IMEIActivity" />
+        <activity android:name=".RetroFit.RetrofitActivity" />
+        <activity android:name=".CaptureAndGalleryActivity" />
+        <activity android:name=".Date.DateActivity" />
+        <activity android:name=".BluetoothPrinter.PrintBluetoothActivity" />
         <activity android:name=".Sign.SignMainActivity" />
         <activity android:name=".Sign.SignActivity" />
         <activity android:name=".Payment.PaymentActivity" />
@@ -39,7 +69,6 @@
         <activity android:name=".ImageOneByOne.PickImageActivity" />
         <activity android:name=".LoadallImage.MainActivity" />
 
-
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"
@@ -49,6 +78,7 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyA_yKuCEcYFrXir2HoCxI108PNE4_uSeE8" />
@@ -62,6 +92,21 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service android:name=".NotificationService" />
+        <service
+            android:name=".Alarm.YourService"
+            android:enabled="true" />
+        <service
+            android:name=".Watsp.AutoStartService"
+            android:enabled="true"
+            tools:ignore="Instantiatable" />
+
+        <receiver
+            android:name=".Watsp.RestartBroadcastReceiver"
+            android:enabled="true"
+            android:exported="true"
+            android:label="RestartServiceWhenStopped" />
     </application>
 
 </manifest>

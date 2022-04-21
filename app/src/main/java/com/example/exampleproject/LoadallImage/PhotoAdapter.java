@@ -1,7 +1,9 @@
 package com.example.exampleproject.LoadallImage;
 
+import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,14 +13,26 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.exampleproject.CaptureImage.ImageCaptureAdapter;
 import com.example.exampleproject.R;
 
 import java.io.File;
 import java.util.List;
 
+import io.fotoapparat.result.BitmapPhoto;
+
 public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> {
     final Context context;
     final List<PhotoClass> list;
+//    public OnClickListener onClickListener;
+//    public void setOnclickListener(OnClickListener onClickListener) {
+//        this.onClickListener = onClickListener;
+//
+//    }
+//    public interface OnClickListener {
+
+//    }
+
 
     public PhotoAdapter(Context context, List<PhotoClass> list) {
         this.context = context;
@@ -42,6 +56,20 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
             context.startActivity(intent);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
 
+        });
+
+        holder.image.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                ClipData data = ClipData.newPlainText("", "");
+                View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(view);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    view.startDragAndDrop(data, shadowBuilder, view, 0);
+                } else {
+                    view.startDrag(data, shadowBuilder, view, 0);
+                }
+                return true;
+            }
         });
     }
 

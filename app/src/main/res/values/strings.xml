@@ -6,4 +6,6 @@
     <string name="error">Error</string>
     <string name="err_name">Enter name</string>
     <string name="err_email">Enter a valid email</string>
+    <string name="back"><![CDATA[<-]]></string>
+    <string name="forward"><![CDATA[->]]></string>
 </resources>

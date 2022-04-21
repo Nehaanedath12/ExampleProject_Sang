@@ -20,16 +20,22 @@ public class ImageCaptureAdapter extends RecyclerView.Adapter<ImageCaptureAdapte
     Context context;
     List<ImageCaptureClass> list;
     public OnClickListener onClickListener;
+    public void setOnclickListener(OnClickListener onClickListener) {
+        this.onClickListener = onClickListener;
+
+    }
+    public interface OnClickListener {
+
+        void onItemClick(BitmapPhoto bitmap, int position);
+    }
+
 
     public ImageCaptureAdapter(CapturingImageActivity context, List<ImageCaptureClass> list) {
         this.context = context;
         this.list = list;
     }
 
-    public void setOnclickListener(OnClickListener onClickListener) {
-        this.onClickListener = onClickListener;
 
-    }
 
 
     @NonNull
@@ -63,10 +69,6 @@ public class ImageCaptureAdapter extends RecyclerView.Adapter<ImageCaptureAdapte
     @Override
     public int getItemCount() {
         return list.size();
-    }
-    public interface OnClickListener {
-
-        void onItemClick(BitmapPhoto bitmap, int position);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

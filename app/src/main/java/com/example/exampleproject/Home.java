@@ -1,15 +1,13 @@
 package com.example.exampleproject;
 
 import android.Manifest;
-import android.content.ActivityNotFoundException;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.pdf.PdfDocument;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -21,12 +19,22 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
+import androidx.lifecycle.Observer;
+import androidx.work.Constraints;
+import androidx.work.NetworkType;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkInfo;
+import androidx.work.WorkManager;
 
+import com.example.exampleproject.Alarm.AlarmActivity;
 import com.example.exampleproject.BluetoothPrinter.PrintBluetoothActivity;
+import com.example.exampleproject.BroadCast.BroadCastActivity;
 import com.example.exampleproject.CaptureImage.CapturingImageActivity;
+import com.example.exampleproject.Date.DateActivity;
 import com.example.exampleproject.GraphicalRep.BubbleChartActivity;
 import com.example.exampleproject.GraphicalRep.CandleStickChartActivity;
 import com.example.exampleproject.GraphicalRep.GraphicalActivity;
@@ -38,21 +46,19 @@ import com.example.exampleproject.ImageOneByOne.PickImageActivity;
 import com.example.exampleproject.LoadallImage.MainActivity;
 import com.example.exampleproject.Map.MapActivity;
 import com.example.exampleproject.Payment.PaymentActivity;
-import com.example.exampleproject.Sign.SignActivity;
-import com.example.exampleproject.Sign.SignMainActivity;
+import com.example.exampleproject.RetroFit.RetrofitActivity;
+import com.example.exampleproject.Watsp.BackGroundActivity;
 import com.example.exampleproject.databinding.ActivityHomeBinding;
+import com.example.exampleproject.notification.BackgroundTaskJava;
+import com.example.exampleproject.otp.OTPActivity;
 import com.github.barteksc.pdfviewer.PDFView;
 import com.google.android.material.snackbar.Snackbar;
 import com.shasin.notificationbanner.Banner;
 
-import org.w3c.dom.Document;
-
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.net.URLEncoder;
+import java.util.concurrent.TimeUnit;
 
 import es.dmoral.toasty.Toasty;
 
@@ -68,6 +74,14 @@ public class Home extends AppCompatActivity {
 
     ActivityHomeBinding binding;
 
+
+    @Override
+    protected void onStop () {
+        super .onStop() ;
+//        startService( new Intent( this, NotificationService. class )) ;
+    }
+
+    @SuppressLint("HardwareIds")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -93,10 +107,81 @@ public class Home extends AppCompatActivity {
         payment=findViewById(R.id.payment);
         sign=findViewById(R.id.sign);
 
+        Constraints constraints = new Constraints.Builder().setRequiresCharging(true).setRequiredNetworkType(NetworkType.UNMETERED).build();
+
+        final PeriodicWorkRequest periodicWorkRequest1 = new PeriodicWorkRequest.Builder(BackgroundTaskJava.class,
+                1, TimeUnit.MILLISECONDS)
+                .setInitialDelay(2000,TimeUnit.MILLISECONDS)
+                .build();
+        WorkManager workManager =  WorkManager.getInstance(this);
+
+        workManager.enqueue(periodicWorkRequest1);
+        workManager.getWorkInfoByIdLiveData(periodicWorkRequest1.getId())
+                .observe(this, new Observer<WorkInfo>() {
+                    @Override
+                    public void onChanged(@Nullable WorkInfo workInfo) {
+                        if (workInfo != null) {
+                            Log.d("periodicWorkRequest", "Status changed to : " + workInfo.getState());
+
+                        }
+                    }
+                });
+
+
+        binding.imei.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(Home.this, new String[]{Manifest.permission.READ_PHONE_STATE}, 100);
+                } else {
+                    startActivity(new Intent(getApplicationContext(), IMEIActivity.class));
+                }
+
+            }
+        });
+        binding.otp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                    startActivity(new Intent(getApplicationContext(), OTPActivity.class));
+                }
+        });
+        binding.watspBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getApplicationContext(), BackGroundActivity.class));
+            }
+        });
+        binding.broadCast.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getApplicationContext(), BroadCastActivity.class));
+            }
+        });
+
+
+        binding.imageAndCapture.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getApplicationContext(), CaptureAndGalleryActivity.class));
+            }
+        });
+
+        binding.alarm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getApplicationContext(), AlarmActivity.class));
+            }
+        });
         binding.printBluetooth.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(getApplicationContext(), PrintBluetoothActivity.class));
+            }
+        });
+        binding.date.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getApplicationContext(), DateActivity.class));
             }
         });
 
@@ -143,6 +228,12 @@ public class Home extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(getApplicationContext(), CapturingImageActivity.class));
+            }
+        });
+        binding.retrofit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getApplicationContext(), RetrofitActivity.class));
             }
         });
 

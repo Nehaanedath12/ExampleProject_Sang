@@ -16,8 +16,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "example_project.db";
     private static final String IMAGE = "image";
     private static final String TABLE_IMAGE = "image_table";
+    private static final String TABLE_PRINT = "print_table";
     private static final String CREATE_TABLE_IMAGE = " create table if not exists " + TABLE_IMAGE + " (" +
             IMAGE + " TEXT(10) DEFAULT null );";
+
+    private static final String CREATE_TABLE_PRINT= " create table if not exists " + TABLE_PRINT + " (" +
+            " LayoutId" + " INTEGER DEFAULT 0, " +
+            " Section" +  " VARCHAR(100) DEFAULT null," +
+            " Alignment" +  " VARCHAR(50) DEFAULT null," +
+            " FieldName" +  " VARCHAR(100) DEFAULT null," +
+            " RowNo" +  " INTEGER DEFAULT 0," +
+            " FontSize" +  " VARCHAR(50) DEFAULT null," +
+            " Break" +  " VARCHAR(100) DEFAULT null" +
+            ");";
 
 
     Context context;
@@ -32,6 +43,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         this.db = db;
         db.execSQL(CREATE_TABLE_IMAGE);
+        db.execSQL(CREATE_TABLE_PRINT);
     }
 
     @Override

@@ -19,7 +19,13 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.dantsu.escposprinter.EscPosPrinter;
+import com.dantsu.escposprinter.connection.bluetooth.BluetoothPrintersConnections;
 import com.example.exampleproject.databinding.ActivityPrintBluetoothBinding;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfWriter;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -27,8 +33,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+
+import retrofit2.http.Body;
 
 public class PrintBluetoothActivity extends AppCompatActivity {
 
@@ -43,13 +53,28 @@ public class PrintBluetoothActivity extends AppCompatActivity {
     byte[] readBuffer;
     Thread workerThread;
     File file;
+    List<BodyClass>bodyList;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityPrintBluetoothBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
-        createPDF();
+//        createPDF();
+
+
+        bodyList=new ArrayList<>();
+        BodyClass bodyClass=new BodyClass("Product1","99","89","11","22","0928098w0");
+        bodyList.add(bodyClass);
+        BodyClass bodyClass1=new BodyClass("Product2","99","66","11","88","090828098w0");
+        bodyList.add(bodyClass1);
+//        BodyClass bodyClass2=new BodyClass("Product13","99","89","11","22","0928098w0");
+//        bodyList.add(bodyClass2);
+//        BodyClass bodyClass3=new BodyClass("Product14","99","89","11","22","0928098w0");
+//        bodyList.add(bodyClass3);
+//        BodyClass bodyClass4=new BodyClass("Product5","99","89","11","22","0928098w0");
+//        bodyList.add(bodyClass4);
+
 
         binding.connection.setOnClickListener(new View.OnClickListener() {
 
@@ -121,26 +146,237 @@ public class PrintBluetoothActivity extends AppCompatActivity {
     private void sendData() throws IOException {
         try {
 
+            List<PrinterClass> list=new ArrayList<>();
+            PrinterClass printerClass=new PrinterClass(1,0,0,"H","L",
+                    "Customer:","Y",1);
+            list.add(printerClass);
+            PrinterClass printerClass1=new PrinterClass(1,0,0,"H","R",
+                    "InvoiceNo:","Y",2);
+            list.add(printerClass1);
+            PrinterClass printerClass2=new PrinterClass(1,1,0,"H","R",
+                    "Date:","Y",3);
+            list.add(printerClass2);
+            PrinterClass printerClass3=new PrinterClass(1,3,0,"H","C",
+                    "===============","Y",0);
+            list.add(printerClass3);
+
+
+            PrinterClass printerClass4=new PrinterClass(1,0,0,"B","C",
+                    "Product","N",1);
+            list.add(printerClass4);
+            PrinterClass printerClass5=new PrinterClass(1,0,0,"B","C",
+                    "Qty","N",2);
+            list.add(printerClass5);
+            PrinterClass printerClass6=new PrinterClass(1,0,0,"B","C",
+                    "UOM","N",3);
+            list.add(printerClass6);
+            PrinterClass printerClass7=new PrinterClass(1,0,0,"B","C",
+                    "Rate","N",4);
+            list.add(printerClass7);
+            PrinterClass printerClass8=new PrinterClass(1,0,0,"B","C",
+                    "GROSS","N",5);
+            list.add(printerClass8);
+            PrinterClass printerClass9=new PrinterClass(1,1,0,"B","L",
+                    "BARCODE","N",6);
+            list.add(printerClass9);
+            PrinterClass printerClass10=new PrinterClass(1,2,0,"B","C",
+                    "------------------","",0);
+            list.add(printerClass10);
+
+            PrinterClass printerClass11=new PrinterClass(1,0,0,"F","C",
+                    "------------------","",0);
+            list.add(printerClass11);
+            PrinterClass printerClass12=new PrinterClass(1,1,0,"F","R",
+                    "Total Qty","",1);
+            list.add(printerClass12);
+            PrinterClass printerClass13=new PrinterClass(1,2,0,"F","R",
+                    "Total Net","",2);
+            list.add(printerClass13);
+            PrinterClass printerClass14=new PrinterClass(1,3,0,"F","C",
+                    "------------------","",0);
+            list.add(printerClass14);
+
+
+
             // the text typed by the user
             //String msg = myTextbox.getText().toString();
             //msg += "\n";
 
-            InputStream is = this.openFileInput("FirstPDF.pdf"); // Where this is Activity
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            byte[] b = new byte[1024];
-            int bytesRead;
-            while (( bytesRead = is.read(b)) != -1) {
-                bos.write(b, 0, bytesRead);
+//            InputStream is = this.openFileInput("FirstPDF.pdf"); // Where this is Activity
+//            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+//            byte[] b = new byte[1024];
+//            int bytesRead;
+//            while (( bytesRead = is.read(b)) != -1) {
+//                bos.write(b, 0, bytesRead);
+//            }
+//            byte[] bytes = bos.toByteArray();
+//
+//            byte[] printformat = { 27, 33, 0 }; //try adding this print format
+//
+//            mmOutputStream.write(printformat);
+//            mmOutputStream.write(bytes);
+//
+//            // tell the user data were sent
+//            binding.myLabel.setText("Data Sent");
+
+            {
+                try {
+
+                    String customer="CustomerName";
+                    String docNo="docNo";
+                    String Date="10-10-2020";
+
+
+                    StringBuilder sb1 = new StringBuilder();
+                    int k=0;
+                    for (int i=0;i<list.size();i++){
+                        if(list.get(i).Section.equals("H")){
+
+                            Log.d("rowNo",list.get(i).RowNo+" "+k);
+                            if(k!=list.get(i).RowNo){
+                                sb1.append("\n");
+                            }
+//                            sb1.append("["+list.get(i).Alignment+"]<b>"+list.get(i).FieldName+" "+customer+"</b>");
+                            switch (list.get(i).rawId){
+                                case 1:
+                                    sb1.append("["+list.get(i).Alignment+"]<b>"+list.get(i).FieldName+" "+customer+"</b>");
+                                    break;
+                                case 2:
+                                    sb1.append("["+list.get(i).Alignment+"]<b>"+list.get(i).FieldName+" "+docNo+"</b>");
+                                    break;
+                                case 3:
+                                    sb1.append("["+list.get(i).Alignment+"]<b>"+list.get(i).FieldName+" "+Date+"</b>");
+                                    break;
+                                case 0:
+                                    sb1.append("["+list.get(i).Alignment+"]<b>"+list.get(i).FieldName+"</b>");
+                                    break;
+                                default:
+                                    break;
+
+                            }
+
+                        }
+                        k=list.get(i).RowNo;
+                    }
+                    int raw=0;
+                    StringBuilder sb = new StringBuilder();
+                    for (int i=0;i<list.size();i++) {
+                        if (list.get(i).Section.equals("B")) {
+                            Log.d("rowNo1",list.get(i).RowNo+" "+raw);
+                            if(raw!=list.get(i).RowNo) {
+                                sb.append("\n");
+                            }
+//                            sb.append("[C]Product[C]Qty[C]rate[C]gross[C]vat[C]net</b>\n");
+                                sb.append("[" + list.get(i).Alignment + "]<b>" + list.get(i).FieldName + "</b>");
+                            }
+                        raw=list.get(i).RowNo;
+                    }
+                    StringBuilder sb2 = new StringBuilder();
+                    try{
+
+                        for (int j=0;j<bodyList.size();j++) {
+                            for (int i = 0; i < list.size(); i++) {
+                                if (list.get(i).Section.equals("B")) {
+
+                                    String brkStart="";
+                                    String brkEnd="";
+                                    if(list.get(i).Break.equals("Y")){
+                                        brkStart="<b>";
+                                        brkEnd="</b>";
+                                    }
+
+                                    switch (list.get(i).rawId) {
+                                        case 1:
+                                            sb2.append("[" + list.get(i).Alignment + "]"+brkStart + bodyList.get(j).product +brkEnd);
+                                            break;
+                                        case 2:
+                                            sb2.append("[" + list.get(i).Alignment + "]"+brkStart + bodyList.get(j).qty +brkEnd);
+                                            break;
+                                        case 3:
+                                            sb2.append("[" + list.get(i).Alignment + "]"+brkStart + bodyList.get(j).uom + brkEnd);
+                                            break;
+                                        case 4:
+                                            sb2.append("[" + list.get(i).Alignment + "]"+brkStart + bodyList.get(j).rate + brkEnd);
+                                            break;
+                                        case 5:
+                                            sb2.append("[" + list.get(i).Alignment + "]"+brkStart+ bodyList.get(j).gross + brkEnd);
+                                            break;
+                                        case 6:
+                                            sb2.append("\n");
+                                            sb2.append("[" + list.get(i).Alignment + "]"+brkStart + bodyList.get(j).barcode + brkEnd);
+                                            break;
+                                        case 0:
+                                            sb2.append("\n");
+                                            sb2.append("[" + list.get(i).Alignment + "]"+brkStart + list.get(i).FieldName + brkEnd);
+                                            break;
+                                        default:
+                                            break;
+
+                                    }
+                                }
+                            }
+                            sb2.append("\n");
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Log.d("erroeee",e.toString());
+                    }
+
+
+                    StringBuilder sbFooter = new StringBuilder();
+                    int newRow=0;
+                    try{
+                    for (int i=0;i<list.size();i++){
+                        if(list.get(i).Section.equals("F")){
+
+                            Log.d("rowNo",list.get(i).RowNo+" "+newRow);
+                            if(newRow!=list.get(i).RowNo){
+                                sbFooter.append("\n");
+                            }
+//                            sb1.append("["+list.get(i).Alignment+"]<b>"+list.get(i).FieldName+" "+customer+"</b>");
+                            switch (list.get(i).rawId){
+                                case 1:
+                                    sbFooter.append("["+list.get(i).Alignment+"]<b>"+list.get(i).FieldName+" "+"90.00"+"</b>");
+                                    break;
+                                case 2:
+                                    sbFooter.append("["+list.get(i).Alignment+"]<b>"+list.get(i).FieldName+" "+"9.88"+"</b>");
+                                    break;
+                                case 0:
+                                    sbFooter.append("["+list.get(i).Alignment+"]<b>"+list.get(i).FieldName+"</b>");
+                                    break;
+                                default:
+                                    break;
+
+                            }
+
+                        }
+                        newRow=list.get(i).RowNo;
+                    }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Log.d("erroeee",e.toString());
+                    }
+
+                    EscPosPrinter printer=new EscPosPrinter(BluetoothPrintersConnections.selectFirstPaired(),203,104f,69);
+                    printer.printFormattedText("" +
+                            "[C]<u><font size='big'>Van Sales</font></u>" +
+                            "\n"+
+                            sb1+
+                            "\n"+
+                            sb+
+                            "\n"+
+                            sb2+
+                            "\n"+
+                            sbFooter
+                    );
+                    binding.myLabel.setText("Sending Data");
+                } catch (Exception e) {
+                e.printStackTrace();
+                Log.d("erroeee",e.toString());
             }
-            byte[] bytes = bos.toByteArray();
+            }
 
-            byte[] printformat = { 27, 33, 0 }; //try adding this print format
 
-            mmOutputStream.write(printformat);
-            mmOutputStream.write(bytes);
-
-            // tell the user data were sent
-            binding.myLabel.setText("Data Sent");
 
             closeBT();
         } catch (NullPointerException e) {

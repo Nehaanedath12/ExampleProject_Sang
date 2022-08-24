@@ -2,7 +2,10 @@ package com.example.exampleproject;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -24,6 +27,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 import androidx.lifecycle.Observer;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.work.Constraints;
 import androidx.work.NetworkType;
 import androidx.work.PeriodicWorkRequest;
@@ -35,6 +39,7 @@ import com.example.exampleproject.BluetoothPrinter.PrintBluetoothActivity;
 import com.example.exampleproject.BroadCast.BroadCastActivity;
 import com.example.exampleproject.CaptureImage.CapturingImageActivity;
 import com.example.exampleproject.Date.DateActivity;
+import com.example.exampleproject.FCM.MessagesActivity;
 import com.example.exampleproject.GraphicalRep.BubbleChartActivity;
 import com.example.exampleproject.GraphicalRep.CandleStickChartActivity;
 import com.example.exampleproject.GraphicalRep.GraphicalActivity;
@@ -51,6 +56,7 @@ import com.example.exampleproject.Watsp.BackGroundActivity;
 import com.example.exampleproject.databinding.ActivityHomeBinding;
 import com.example.exampleproject.notification.BackgroundTaskJava;
 import com.example.exampleproject.otp.OTPActivity;
+import com.example.exampleproject.wifi.WifiActivity;
 import com.github.barteksc.pdfviewer.PDFView;
 import com.google.android.material.snackbar.Snackbar;
 import com.shasin.notificationbanner.Banner;
@@ -73,6 +79,8 @@ public class Home extends AppCompatActivity {
     Button payment,sign;
 
     ActivityHomeBinding binding;
+    LocalReceiver myReceiver;
+
 
 
     @Override
@@ -106,6 +114,17 @@ public class Home extends AppCompatActivity {
         pdfView=findViewById(R.id.pdfView);
         payment=findViewById(R.id.payment);
         sign=findViewById(R.id.sign);
+        myReceiver = new LocalReceiver();
+        
+        
+        
+        if(getIntent().getExtras()!=null){
+            for (String key: getIntent().getExtras().keySet()){
+                Log.d("keyyyy",key+"");
+
+            }
+        }
+
 
         Constraints constraints = new Constraints.Builder().setRequiresCharging(true).setRequiredNetworkType(NetworkType.UNMETERED).build();
 
@@ -127,6 +146,12 @@ public class Home extends AppCompatActivity {
                     }
                 });
 
+        binding.msg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getApplicationContext(), MessagesActivity.class));
+            }
+        });
 
         binding.imei.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -184,7 +209,15 @@ public class Home extends AppCompatActivity {
                 startActivity(new Intent(getApplicationContext(), DateActivity.class));
             }
         });
+        binding.wifiPrint.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ActivityCompat.requestPermissions(Home.this,new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        PackageManager.PERMISSION_GRANTED);
+                startActivity(new Intent(getApplicationContext(), WifiActivity.class));
 
+            }
+        });
 
         payment.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -338,12 +371,38 @@ public class Home extends AppCompatActivity {
         });
 
     }
+    @Override
+    public void onResume(){
+        super.onResume();
+        IntentFilter filter = new IntentFilter("NOTIFICATION_LOCAL_BROADCAST");
+        LocalBroadcastManager.getInstance(this).registerReceiver(myReceiver, filter);
+    }
+
+    @Override
+    public void onPause(){
+        super.onPause();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(myReceiver);
+    }
+
+    private void updateUI(Intent intent) {
+        binding.noti.setText("You have Notification");
+        // do what you need to do
+    }
+
+    private class LocalReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            updateUI(intent);
+        }
+    }
 
 
     private void createPDF() {
         PdfDocument pdfDocument=new PdfDocument();
         Paint paint=new Paint();
         PdfDocument.PageInfo myPageinfo=new PdfDocument.PageInfo.Builder(250,400,1).create();
+
+
         PdfDocument.Page myPage=pdfDocument.startPage(myPageinfo);
         Canvas canvas=myPage.getCanvas();
         canvas.drawText("welcome Neha",40,50,paint);
